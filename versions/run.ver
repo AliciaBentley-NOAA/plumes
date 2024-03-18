@@ -18,3 +18,6 @@ export proj_ver=7.1.0
 export geos_ver=3.8.1
 export gempak_ver=7.14.1
 export libjpeg_turbo_ver=2.1.0
+
+export gefs_ver=12.3
+export gfs_ver=16.3
