@@ -1,0 +1,79 @@
+#!/bin/bash
+
+########################################
+# Preliminary data setup step
+########################################
+set -x
+
+##################################################
+### SENDECF  - Flag Events on ecFLOW
+### SENDCOM  - Copy Files From TMPDIR to $COMOUT
+### SENDDBN  - Issue DBNet Client Calls
+### SENDMAIL - Send email if file is missing
+###################################################
+export SENDECF=${SENDECF:-YES}
+export SENDCOM=${SENDCOM:-YES}
+export SENDDBN=${SENDDBN:-YES}
+export SENDMAIL=${SENDMAIL:-NO}
+
+# ###################################
+# SET SHELL PROCESSING VARIABLES
+# ###################################
+export PS4='$SECONDS + '
+date
+
+###########################################################
+# obtain unique LSF id (jobid) and make temp directories
+###########################################################
+export DATA=${DATA:-${DATAROOT:?}/${jobid:?}}
+mkdir -p $DATA
+cd $DATA
+
+####################################
+## Set directories
+#####################################
+export HOMEplumes=${HOMEplumes:-${PACKAGEROOT}/${NET}.${plumes_ver}}
+export FIXplumes=${FIXplumes:-$HOMEplumes/fix}
+export PARMplumes=${PARMplumes:-$HOMEplumes/parm}
+export SCRIPTSplumes=${SCRIPTSplumes:-$HOMEplumes/scripts}
+export USHplumes=${USHevs:-$HOMEplumes/ush}
+
+# Run setpdy and initialize PDY variables
+export vhr=${vhr:-00}
+export cycle=t${vhr}z
+setpdy.sh
+. ./PDY
+
+export VDATE=${VDATE:-$PDYm1}
+
+####################################
+## Define NET/RUN variables
+#####################################
+export NET=${NET:-plumes}
+export RUN=${RUN:-obs}
+
+# Define COMIN/COMOUT variables:
+
+export COMIN=${COMIN:-$(compath.py ${envir}/com/${NET}/${plumes_ver})}
+export DCOMINgempak=${DCOMINgempak:-$(compath.py ${envir}/dcom/ldmdata/gempak/hrly)}
+
+export COMOUT=${COMOUT:-$(compath.py -o ${NET}/${plumes_ver})}
+mkdir -p $COMOUT
+
+#######################################################################
+# Execute the script.
+#######################################################################
+
+$HOMEplumes/scripts/explumes_create_${RUN}.sh
+
+export err=$?; err_chk
+
+msg="JOB $job HAS COMPLETED NORMALLY."
+postmsg "$msg"
+
+if [ "$KEEPDATA" != "YES" ] ; then
+  cd $DATAROOT
+  rm -rf $DATA
+fi
+
+date
