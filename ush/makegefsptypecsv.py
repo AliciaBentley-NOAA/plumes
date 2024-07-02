@@ -1,5 +1,4 @@
-#!/bin/usr/env python
-#import pygrib
+#!/usr/bin/env python
 import grib2io
 import csv
 import datetime
@@ -24,7 +23,7 @@ def find_nearest(array,value):
 slist=[]
 slats=[]
 slons=[]
-with open('gfsxstations.txt','r') as f:
+with open('stations.txt','r') as f:
   for row in f:
     x=row.split(',')
     slist.append(x[0])
